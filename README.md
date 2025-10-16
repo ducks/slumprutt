@@ -2,6 +2,13 @@
 
 Generate random walking, cycling, or driving routes for your next adventure.
 
+## Screenshots
+
+![Initial interface with form inputs](screenshots/slumprutt-1.png)
+![Generated routes displayed on map](screenshots/slumprutt-2.png)
+![Route highlighting on hover](screenshots/slumprutt-3.png)
+![Turn-by-turn walking directions](screenshots/slumprutt-4.png)
+
 ## Features
 
 - **Random loop routes** - Start and end at the same location

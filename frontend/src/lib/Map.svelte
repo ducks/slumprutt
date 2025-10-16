@@ -12,6 +12,7 @@
   let map: L.Map | null = null;
   let routeLayers: L.Polyline[] = [];
   let markerLayers: L.Marker[] = [];
+  let lastRoutes: GeneratedRoute[] = [];
 
   const routeColors = ['#e74c3c', '#3498db', '#2ecc71', '#f39c12', '#9b59b6'];
 
@@ -32,8 +33,10 @@
     }
   });
 
-  // Update routes when they change
-  $: if (map && routes.length > 0) {
+  // Update routes only when the actual routes array changes (not hover state)
+  $: if (map && routes.length > 0 && routes !== lastRoutes) {
+    lastRoutes = routes;
+
     // Clear existing routes and markers
     routeLayers.forEach(layer => map?.removeLayer(layer));
     markerLayers.forEach(layer => map?.removeLayer(layer));
@@ -45,12 +48,10 @@
       const color = routeColors[idx % routeColors.length];
       const latLngs = route.points.map(p => [p.lat, p.lon] as [number, number]);
 
-      const isHovered = hoveredRouteIndex === idx;
-
       const polyline = L.polyline(latLngs, {
         color,
-        weight: isHovered ? 6 : 4,
-        opacity: isHovered ? 1 : 0.7
+        weight: 4,
+        opacity: 0.7
       }).addTo(map!);
 
       const distanceKm = route.distance?.toFixed(2) || 'N/A';
@@ -99,11 +100,26 @@
       }
     });
 
-    // Fit map to show all routes
+    // Fit map to show all routes (only when new routes are loaded)
     if (routeLayers.length > 0) {
       const group = L.featureGroup(routeLayers);
       map!.fitBounds(group.getBounds().pad(0.1));
     }
+  }
+
+  // Update route styling when hover changes (without re-creating layers)
+  $: if (map && routeLayers.length > 0) {
+    routeLayers.forEach((layer, idx) => {
+      const isHovered = hoveredRouteIndex === idx;
+      layer.setStyle({
+        weight: isHovered ? 8 : 4,
+        opacity: isHovered ? 1 : 0.7
+      });
+      // Bring hovered route to front
+      if (isHovered) {
+        layer.bringToFront();
+      }
+    });
   }
 </script>
 

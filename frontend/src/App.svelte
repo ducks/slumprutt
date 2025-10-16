@@ -266,11 +266,11 @@
   }
 
   .sidebar {
-    width: 400px;
     background: #f8f9fa;
     padding: 2rem;
     overflow-y: auto;
     border-right: 1px solid #dee2e6;
+    flex-shrink: 0;
   }
 
   h1 {
