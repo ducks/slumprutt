@@ -15,6 +15,7 @@
   let routes: GeneratedRoute[] = [];
   let loading = false;
   let error = '';
+  let hoveredRouteIndex: number | null = null;
 
   const API_URL = 'http://localhost:3001';
 
@@ -203,7 +204,11 @@
         <div class="routes-list">
           <h2>Generated Routes</h2>
           {#each routes as route, idx}
-            <div class="route-item">
+            <div
+              class="route-item"
+              on:mouseenter={() => hoveredRouteIndex = idx}
+              on:mouseleave={() => hoveredRouteIndex = null}
+            >
               <h3>Route {idx + 1}</h3>
               <p>
                 Distance: {route.distance?.toFixed(2)} km ({(route.distance ? route.distance * 0.621371 : 0).toFixed(2)} mi)
@@ -230,7 +235,11 @@
     </aside>
 
     <div class="map-wrapper">
-      <Map routes={routes} center={startCoord || { lat: 40.7128, lon: -74.0060 }} />
+      <Map
+        routes={routes}
+        center={startCoord || { lat: 40.7128, lon: -74.0060 }}
+        hoveredRouteIndex={hoveredRouteIndex}
+      />
     </div>
   </div>
 </main>
@@ -374,6 +383,14 @@
     border-radius: 4px;
     margin-bottom: 0.75rem;
     border: 1px solid #dee2e6;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .route-item:hover {
+    background: #f8f9fa;
+    border-color: #007bff;
+    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.1);
   }
 
   .route-item h3 {
