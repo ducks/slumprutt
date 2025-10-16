@@ -6,6 +6,7 @@
 
   export let routes: GeneratedRoute[] = [];
   export let center: Coordinate = { lat: 40.7128, lon: -74.0060 }; // NYC default
+  export let hoveredRouteIndex: number | null = null;
 
   let mapElement: HTMLDivElement;
   let map: L.Map | null = null;
@@ -44,10 +45,12 @@
       const color = routeColors[idx % routeColors.length];
       const latLngs = route.points.map(p => [p.lat, p.lon] as [number, number]);
 
+      const isHovered = hoveredRouteIndex === idx;
+
       const polyline = L.polyline(latLngs, {
         color,
-        weight: 4,
-        opacity: 0.7
+        weight: isHovered ? 6 : 4,
+        opacity: isHovered ? 1 : 0.7
       }).addTo(map!);
 
       const distanceKm = route.distance?.toFixed(2) || 'N/A';

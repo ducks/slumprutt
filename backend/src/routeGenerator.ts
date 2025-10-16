@@ -162,6 +162,7 @@ export async function getRoutedPaths(
       const coords = route.points.map(p => `${p.lon},${p.lat}`).join(';');
 
       // Call OSRM API with steps for turn-by-turn directions
+      // The 'foot' profile already avoids motorways and highways by default
       const url = `https://router.project-osrm.org/route/v1/${osrmProfile}/${coords}?overview=full&geometries=geojson&steps=true`;
       const response = await fetch(url);
       const data = await response.json();
