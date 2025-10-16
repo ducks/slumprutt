@@ -69,8 +69,9 @@ export function generateLoopWaypoints(
   // Use fewer waypoints to force larger segments and more interesting routes
   const numWaypoints = Math.max(3, Math.min(5, 3 + variationIndex));
 
-  // Make radius larger to create more spread-out routes
-  const baseRadius = targetDistanceKm / (2 * Math.PI) * 1.5;
+  // Calculate radius to approximate target distance
+  // Reduced multiplier from 1.5 to 0.6 to account for road routing overhead
+  const baseRadius = targetDistanceKm / (2 * Math.PI) * 0.6;
 
   const waypoints: Coordinate[] = [];
   const latPerKm = 1 / 111; // 1 degree latitude ≈ 111km
@@ -84,12 +85,12 @@ export function generateLoopWaypoints(
     // Ensure even distribution around the circle
     const baseAngle = (i / numWaypoints) * 2 * Math.PI + primaryDirection;
 
-    // Less random variation to maintain good spread
-    const angleVariation = (Math.random() - 0.5) * 0.3;
+    // More random variation to create diverse paths
+    const angleVariation = (Math.random() - 0.5) * 0.8;
     const angle = baseAngle + angleVariation;
 
-    // Keep radius fairly consistent but with some variation
-    const radiusVariation = 0.8 + Math.random() * 0.4;
+    // More radius variation to explore different distances
+    const radiusVariation = 0.5 + Math.random() * 1.0;
     const radius = baseRadius * radiusVariation;
 
     waypoints.push({
@@ -164,8 +165,14 @@ export async function getRoutedPaths(
       // Call OSRM API with steps for turn-by-turn directions
       // The 'foot' profile already avoids motorways and highways by default
       const url = `https://router.project-osrm.org/route/v1/${osrmProfile}/${coords}?overview=full&geometries=geojson&steps=true`;
-      const response = await fetch(url);
+      const response = await fetch(url, {
+        signal: AbortSignal.timeout(10000) // 10 second timeout
+      });
       const data = await response.json();
+
+      if (data.code !== 'Ok') {
+        console.warn(`OSRM returned error for route ${route.id}:`, data.code, data.message);
+      }
 
       if (data.code === 'Ok' && data.routes && data.routes[0]) {
         const osrmRoute = data.routes[0];
